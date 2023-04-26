@@ -1,10 +1,47 @@
-import express, { Request, Response } from "express";
-const app = express();
+import express, { Request, Response, json } from 'express';
+import axios, { AxiosResponse } from 'axios';
+import puppeteer from 'puppeteer';
+import Fs from 'fs/promises';
+import data from './data.json';
 
-app.get("/", (req: Request, res: Response): void => {
-  res.json({ message: "Please Like the Video!" });
-});
+const extractFilmInfo = async () => {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+  await page.goto('https://films.criterionchannel.com/', {
+    timeout: 0
+  });
+  await page.waitForSelector('.criterion-channel__tr');
 
-app.listen("3001", (): void => {
-  console.log("Server Running!");
-});
+  // Extract film information
+  const filmInfo = await page.evaluate(() => {
+    const filmRows = Array.from(
+      document.querySelectorAll('.criterion-channel__tr')
+    );
+    const data = filmRows.map((film) => ({
+      title: film
+        .querySelector('.criterion-channel__td--title a')
+        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
+      director: film
+        .querySelector('.criterion-channel__td--director')
+        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
+      country: film
+        .querySelector('.criterion-channel__td--country span')
+        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
+      year: film
+        .querySelector('.criterion-channel__td--year')
+        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
+      link: film
+        .querySelector('.criterion-channel__td--title a')
+        ?.getAttribute('href')
+    }));
+    return data;
+  });
+
+  console.log(filmInfo);
+
+  await browser.close();
+};
+
+console.log(data);
+
+// extractFilmInfo();
