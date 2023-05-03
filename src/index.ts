@@ -1,5 +1,4 @@
 import express, { Request, Response, json } from 'express';
-import axios, { AxiosResponse } from 'axios';
 import puppeteer from 'puppeteer';
 import Fs from 'fs/promises';
 import data from './data.json';
