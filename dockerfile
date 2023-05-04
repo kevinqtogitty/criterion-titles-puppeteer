@@ -19,4 +19,4 @@ EXPOSE 8080
 RUN yarn build
 
 # Start the application
-CMD ["yarn", "start"]
+CMD ["yarn", "dev"]
