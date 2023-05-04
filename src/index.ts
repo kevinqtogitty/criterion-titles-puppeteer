@@ -2,6 +2,8 @@ import express, { Request, Response, json } from 'express';
 import puppeteer from 'puppeteer';
 import Fs from 'fs/promises';
 import data from './data.json';
+import { initializeApp } from 'firebase/app';
+import { firebaseConfig } from './firebase/firebaseInit';
 
 const extractFilmInfo = async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -41,6 +43,10 @@ const extractFilmInfo = async () => {
   await browser.close();
 };
 
-console.log(data);
+const firebaseClient = initializeApp(firebaseConfig);
+console.log(firebaseClient);
+
+// console.log(data);
+//ss
 
 // extractFilmInfo();
