@@ -3,10 +3,11 @@ import { Response, Request } from 'express';
 import { client, expiration } from '..';
 
 const getAllFilms = async (req: Request, res: Response) => {
-  console.log('Puppeteering');
   try {
     const cachedFilms = await client.get('allCriterionFilms');
     if (!cachedFilms) {
+      console.log('cache missed');
+
       const browser = await puppeteer.launch({ headless: 'new' });
       const page = await browser.newPage();
       await page.goto('https://films.criterionchannel.com/', {
@@ -52,7 +53,7 @@ const getAllFilms = async (req: Request, res: Response) => {
 
       res.status(200).json(filmInfo);
     } else {
-      console.log(cachedFilms);
+      console.log('cache hit');
       res.status(200).json(JSON.parse(cachedFilms));
     }
   } catch (e) {
