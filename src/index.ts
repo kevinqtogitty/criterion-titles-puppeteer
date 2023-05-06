@@ -1,52 +1,43 @@
-import express, { Request, Response, json } from 'express';
-import puppeteer from 'puppeteer';
-import Fs from 'fs/promises';
-import data from './data.json';
+import express, { Request, Response } from 'express';
+import cors from 'cors';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from './firebase/firebaseInit';
+import { createClient } from 'redis';
+import filmRouter from './routes/filmRoutes';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const extractFilmInfo = async () => {
-  const browser = await puppeteer.launch({ headless: false });
-  const page = await browser.newPage();
-  await page.goto('https://films.criterionchannel.com/', {
-    timeout: 0
-  });
-  await page.waitForSelector('.criterion-channel__tr');
+export const client = createClient({
+  url: 'redis://127.0.0.1:6379',
+  legacyMode: true
+});
 
-  // Extract film information
-  const filmInfo = await page.evaluate(() => {
-    const filmRows = Array.from(
-      document.querySelectorAll('.criterion-channel__tr')
-    );
-    const data = filmRows.map((film) => ({
-      title: film
-        .querySelector('.criterion-channel__td--title a')
-        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
-      director: film
-        .querySelector('.criterion-channel__td--director')
-        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
-      country: film
-        .querySelector('.criterion-channel__td--country span')
-        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
-      year: film
-        .querySelector('.criterion-channel__td--year')
-        ?.textContent?.replace(/(\r\n|\n|\r|\t)/gm, ''),
-      link: film
-        .querySelector('.criterion-channel__td--title a')
-        ?.getAttribute('href')
-    }));
-    return data;
-  });
+export const expiration = 3600;
+const PORT = process.env.PORT || 3001;
 
-  console.log(filmInfo);
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-  await browser.close();
-};
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json('hello');
+});
+
+app.use('/films', filmRouter);
+
+app.listen(PORT, (): void => {
+  console.log(`Server Running on port ${PORT}`);
+});
+
+client.connect().then(() => {
+  console.log('redis connected');
+});
+
+client.on('error', (err) => {
+  console.log('Error ' + err);
+});
 
 const firebaseClient = initializeApp(firebaseConfig);
-console.log(firebaseClient);
-
-// console.log(data);
-//ss
+// console.log(firebaseClient);
 
 // extractFilmInfo();
