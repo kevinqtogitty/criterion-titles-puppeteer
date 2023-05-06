@@ -7,12 +7,7 @@ import filmRouter from './routes/filmRoutes';
 import dotenv from 'dotenv';
 dotenv.config();
 
-export const client = createClient({
-  url: 'redis://127.0.0.1:6379',
-  legacyMode: true
-});
-
-export const expiration = 3600;
+/* Express Init */
 const PORT = process.env.PORT || 3001;
 
 const app = express();
@@ -29,6 +24,10 @@ app.listen(PORT, (): void => {
   console.log(`Server Running on port ${PORT}`);
 });
 
+/* Redis Init */
+export const client = createClient();
+export const expiration = 10000;
+
 client.connect().then(() => {
   console.log('redis connected');
 });
@@ -37,7 +36,5 @@ client.on('error', (err) => {
   console.log('Error ' + err);
 });
 
+/* Firebase Init */
 const firebaseClient = initializeApp(firebaseConfig);
-// console.log(firebaseClient);
-
-// extractFilmInfo();
