@@ -24,11 +24,9 @@ app.listen(PORT, (): void => {
 
 /* Redis Init */
 export const client = createClient({
-  socket: {
-    host: `${process.env.REDIS_HOST}${process.env.REDIS_PORT}`
-  }
+  url: process.env.REDIS_HURL
 });
-export const expiration = 10000;
+export const expiration = 86400;
 
 client.connect().then(() => {
   console.log('redis connected');
