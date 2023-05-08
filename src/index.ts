@@ -3,6 +3,7 @@ import cors from 'cors';
 import { createClient } from 'redis';
 import filmRouter from './routes/filmRoutes';
 import dotenv from 'dotenv';
+import { getAllFilms } from './controllers/filmControllers';
 dotenv.config();
 
 /* Express Init */
@@ -35,3 +36,5 @@ client.connect().then(() => {
 client.on('error', (err: ErrorRequestHandler) => {
   console.log('Error ' + err);
 });
+
+setInterval(getAllFilms, 1000 * 60 * 60 * 24);
