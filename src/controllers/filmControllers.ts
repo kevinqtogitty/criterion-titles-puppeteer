@@ -43,6 +43,7 @@ const getAllFilms = async (req: Request, res: Response) => {
         return data;
       });
 
+      if (await client.get('allCriterionFilms')) await client.flushAll();
       await client.setEx(
         'allCriterionFilms',
         expiration,
