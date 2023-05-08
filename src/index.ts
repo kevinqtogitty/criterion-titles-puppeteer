@@ -24,7 +24,9 @@ app.listen(PORT, (): void => {
 
 /* Redis Init */
 export const client = createClient({
-  socket: { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) }
+  socket: {
+    host: `${process.env.REDIS_HOST}${process.env.REDIS_PORT}`
+  }
 });
 export const expiration = 10000;
 
@@ -35,3 +37,5 @@ client.connect().then(() => {
 client.on('error', (err: ErrorRequestHandler) => {
   console.log('Error ' + err);
 });
+
+console.log(process.env.REDIS_HOST, process.env.REDIS_PORT);
