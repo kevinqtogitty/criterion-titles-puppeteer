@@ -1,7 +1,5 @@
-import express, { Request, Response } from 'express';
+import express, { ErrorRequestHandler, Request, Response } from 'express';
 import cors from 'cors';
-import { initializeApp } from 'firebase/app';
-import { firebaseConfig } from './firebase/firebaseInit';
 import { createClient } from 'redis';
 import filmRouter from './routes/filmRoutes';
 import dotenv from 'dotenv';
@@ -32,9 +30,6 @@ client.connect().then(() => {
   console.log('redis connected');
 });
 
-client.on('error', (err) => {
+client.on('error', (err: ErrorRequestHandler) => {
   console.log('Error ' + err);
 });
-
-/* Firebase Init */
-const firebaseClient = initializeApp(firebaseConfig);
