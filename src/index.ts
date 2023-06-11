@@ -1,9 +1,13 @@
 import express, { ErrorRequestHandler, Request, Response } from 'express';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 import cors from 'cors';
 import { createClient } from 'redis';
 import filmRouter from './routes/filmRoutes';
 import dotenv from 'dotenv';
 import { updateFilms } from './controllers/filmControllers';
+import { firebaseConfig } from './firebase/firebaseInit';
+
 dotenv.config();
 
 /* Express Init */
@@ -22,6 +26,10 @@ app.use('/films', filmRouter);
 app.listen(PORT, (): void => {
   console.log(`Server Running on port ${PORT}`);
 });
+
+/* Firebase Init */
+const firebaseApp = initializeApp(firebaseConfig);
+export const fireStoreDB = getFirestore(firebaseApp);
 
 /* Redis Init */
 export const client = createClient({
