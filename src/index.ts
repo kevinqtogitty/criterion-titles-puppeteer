@@ -7,6 +7,7 @@ import filmRouter from './routes/filmRoutes';
 import dotenv from 'dotenv';
 import { updateFilms } from './controllers/filmControllers';
 import { firebaseConfig } from './firebase/firebaseInit';
+import cron from 'node-cron';
 
 dotenv.config();
 
@@ -45,4 +46,5 @@ client.on('error', (err: ErrorRequestHandler) => {
   console.log('Error ' + err);
 });
 
-setInterval(updateFilms, 1000 * 60 * 60 * 24);
+/* Scheduled Tasks */
+cron.schedule('0 0 0 * * *', () => updateFilms());
