@@ -1,6 +1,7 @@
 import puppeteer, { Browser } from 'puppeteer';
 import { Response, Request } from 'express';
-import { client, expiration } from '..';
+import { client, expiration, fireStoreDB } from '..';
+import { setDoc, doc, getDoc } from 'firebase/firestore';
 
 const getAllFilms = async (req: Request, res: Response) => {
   try {
@@ -9,18 +10,20 @@ const getAllFilms = async (req: Request, res: Response) => {
     if (!cachedFilms) {
       console.log('cache missed');
 
-      const browser = await puppeteer.launch({ headless: 'new' });
-      const filmInfo = await scrapeFilmData(browser);
+      const docRef = doc(fireStoreDB, 'films', 'KDJRdL9D062pgQgXgivM');
+      const docSnap = await getDoc(docRef);
 
-      await client.setEx(
-        'allCriterionFilms',
-        expiration,
-        JSON.stringify(filmInfo)
-      );
+      if (docSnap.exists()) {
+        await client.setEx(
+          'allCriterionFilms',
+          expiration,
+          JSON.stringify(docSnap.data())
+        );
+      } else {
+        console.log('No such document!');
+      }
 
-      await browser.close();
-
-      res.status(200).json(filmInfo);
+      res.status(200).json(docSnap.data());
     } else {
       console.log('cache hit');
       res.status(200).json(JSON.parse(cachedFilms));
@@ -47,6 +50,9 @@ const updateFilms = async () => {
     }
 
     await browser.close();
+    await setDoc(doc(fireStoreDB, 'films', 'KDJRdL9D062pgQgXgivM'), {
+      allfilms: filmInfo
+    });
   } catch (e) {
     console.log(e);
   }
@@ -86,9 +92,9 @@ const scrapeFilmData = async (browser: Browser) => {
         .querySelector('.criterion-channel__film-img')
         ?.getAttribute('src')
     }));
-    console.log('scrape finished');
     return data;
   });
+
   return filmInfo;
 };
 
