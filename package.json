@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon ./build/index.js",
-    "build": "tsc -p ./ && yarn install && node node_modules/puppeteer/install.js",
+    "build": "yarn && tsc -p ./ && node node_modules/puppeteer/install.js",
     "dev": "nodemon ./src/index.ts"
   },
   "dependencies": {
